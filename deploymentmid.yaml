@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deploymentmid
+spec:
+  selector:
+    matchLabels:
+      app: MIDServerManagement
+      provider: ServiceNow
+      type: DeploymentMID
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: MIDServerManagement
+        provider: ServiceNow
+        type: DeploymentMID
+    spec:
+      containers:
+        - name: mutual-auth-deployment-container
+          imagePullPolicy: Always
+          image: <IMAGEURL:TAG>
+          env:
+            - name: MID_INSTANCE_URL
+              value: "<INSTANCE_URL>"
+            - name: MID_SERVER_NAME
+              value: "<MID_SERVER_NAME>"
+            - name: MID_MUTUAL_AUTH_PEM_FILE
+              value: "/path/to/secret/<IMPORTANT_FILE_NAME>"
+          volumeMounts:
+            - mountPath: "/path/to/secret/"
+              name: mid-cert
+              readOnly: true
+      serviceAccountName: "k8smiddeploymentaccount"
+      volumes:
+        - name: mid-cert
+          secret: 
+            readOnly: true
+            secretName: mid-cert
